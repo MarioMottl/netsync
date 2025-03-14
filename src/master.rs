@@ -25,7 +25,6 @@ struct Args {
 fn handle_client(stream: TcpStream) {
     let peer_addr = stream.peer_addr().unwrap();
     info!("Slave connected: {:?}", peer_addr);
-    // In a real implementation you might handle heartbeat messages or actual command responses.
     loop {
         thread::sleep(Duration::from_secs(1));
     }
@@ -74,7 +73,6 @@ fn run_watcher(clients: Arc<Mutex<Vec<TcpStream>>>, repo_path: &str) -> Result<(
         move |res: notify::Result<Event>| match res {
             Ok(event) => {
                 info!("File event: {:?}", event);
-                // Create an update command.
                 let cmd = Command::Update;
                 let msg = match serialize_command(&cmd) {
                     Ok(m) => m,
