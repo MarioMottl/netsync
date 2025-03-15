@@ -1,8 +1,10 @@
 mod commands;
+mod logger;
 
-use crate::commands::{Command, serialize_command};
+use crate::logger::init_logger;
 use anyhow::Result;
 use clap::Parser;
+use commands::{Command, serialize_command};
 use log::{error, info};
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::io::Write;
@@ -105,7 +107,7 @@ fn run_watcher(clients: Arc<Mutex<Vec<TcpStream>>>, repo_path: &str) -> Result<(
 }
 
 fn main() -> Result<()> {
-    env_logger::init();
+    init_logger("info");
     let args = Args::parse();
     info!("Using repo path: {}", args.repo_path);
     info!("Using port: {}", args.port);

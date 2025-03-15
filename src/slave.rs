@@ -1,5 +1,7 @@
 mod commands;
+mod logger;
 
+use crate::logger::init_logger;
 use anyhow::Result;
 use clap::Parser;
 use commands::{ClientContext, deserialize_command};
@@ -67,7 +69,7 @@ fn run_slave(master_addr: &str, ctx: &ClientContext) -> Result<()> {
 }
 
 fn main() -> Result<()> {
-    env_logger::init();
+    init_logger("info");
     let args = Args::parse();
     info!("Using master address: {}", args.master_addr);
 
