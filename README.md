@@ -63,11 +63,3 @@ export CLIENT_IP="127.0.0.1"
 export CLIENT_PORT=8000
 ./target/release/slave
 ```
-
-## Extending the Protocol
-
-The shared command protocol is defined in `src/commands/commands.rs`. To add or modify commands:
-
-- Update the `Command` enum variants.
-- Implement new behaviors in `execute_on_server` and/or `execute_on_client`.
-- Rebuild the project so both master and slave use the updated protocol.
