@@ -4,9 +4,9 @@ mod logger;
 use crate::logger::init_logger;
 use anyhow::Result;
 use clap::Parser;
-use commands::{ClientContext, deserialize_command};
+use commands::{Command, deserialize_command, serialize_command};
 use log::{error, info};
-use std::io::Read;
+use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::thread;
 use std::time::Duration;
@@ -24,7 +24,7 @@ struct Args {
     client_port: u16,
 }
 
-fn run_slave(master_addr: &str, ctx: &ClientContext) -> Result<()> {
+fn run_slave(master_addr: &str) -> Result<()> {
     loop {
         match TcpStream::connect(master_addr) {
             Ok(mut stream) => {
@@ -32,29 +32,9 @@ fn run_slave(master_addr: &str, ctx: &ClientContext) -> Result<()> {
                 stream
                     .set_read_timeout(Some(Duration::from_secs(10)))
                     .expect("Failed to set timeout");
-                let mut buffer = [0; 1024];
-                loop {
-                    match stream.read(&mut buffer) {
-                        Ok(0) => {
-                            info!("Master closed the connection.");
-                            break;
-                        }
-                        Ok(n) => match deserialize_command(&buffer[..n]) {
-                            Ok(cmd) => {
-                                info!("Received command: {:?}", cmd);
-                                if let Err(e) = cmd.execute_on_client(ctx) {
-                                    error!("Command execution error: {}", e);
-                                }
-                            }
-                            Err(e) => {
-                                error!("Failed to deserialize command: {}", e);
-                            }
-                        },
-                        Err(e) => {
-                            error!("Error reading from master: {}", e);
-                            break;
-                        }
-                    }
+                // Process incoming messages in a dedicated function.
+                if let Err(e) = process_incoming_messages(&mut stream) {
+                    error!("Connection error: {}", e);
                 }
             }
             Err(e) => {
@@ -68,16 +48,63 @@ fn run_slave(master_addr: &str, ctx: &ClientContext) -> Result<()> {
     }
 }
 
+fn process_incoming_messages(stream: &mut TcpStream) -> Result<()> {
+    let mut buffer = [0; 1024];
+    loop {
+        match stream.read(&mut buffer) {
+            Ok(0) => {
+                info!("Master closed the connection.");
+                break;
+            }
+            Ok(n) => {
+                handle_message(&buffer[..n], stream)?;
+            }
+            Err(e) => {
+                error!("Error reading from master: {}", e);
+                break;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn handle_message(data: &[u8], stream: &mut TcpStream) -> Result<()> {
+    match deserialize_command(data) {
+        Ok(cmd) => match cmd {
+            Command::Ping => {
+                info!("Received PING from master.");
+                send_pong(stream)
+            }
+            Command::Update => {
+                info!("Received UPDATE from master.");
+                Ok(())
+            }
+            _ => {
+                info!("Received command: {:?}", cmd);
+                Ok(())
+            }
+        },
+        Err(e) => {
+            error!("Failed to deserialize command: {}", e);
+            Ok(())
+        }
+    }
+}
+
+fn send_pong(stream: &mut TcpStream) -> Result<()> {
+    let pong_cmd = Command::Custom {
+        data: "PONG".to_string(),
+    };
+    let reply = serialize_command(&pong_cmd)?;
+    stream.write_all(&reply)?;
+    info!("Sent PONG reply.");
+    Ok(())
+}
+
 fn main() -> Result<()> {
     init_logger("info");
     let args = Args::parse();
     info!("Using master address: {}", args.master_addr);
-
-    let ctx = ClientContext {
-        ip: args.client_ip,
-        port: args.client_port,
-    };
-
-    run_slave(&args.master_addr, &ctx)?;
+    run_slave(&args.master_addr)?;
     Ok(())
 }
