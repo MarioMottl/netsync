@@ -7,6 +7,7 @@ edition = "2024"
 anyhow = "1.0.97"
 clap = { version = "4.5.32", features = ["derive", "env"] }
 env_logger = "0.11.7"
+hostname = "0.4.0"
 log = "0.4.26"
 notify = "8.0.0"
 serde = { version = "1.0.219", features = ["derive"] }
