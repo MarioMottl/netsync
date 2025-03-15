@@ -26,7 +26,6 @@ fn run_slave(master_addr: &str) -> Result<()> {
                 stream
                     .set_read_timeout(Some(Duration::from_secs(10)))
                     .expect("Failed to set timeout");
-                // Process incoming messages in a dedicated function.
                 if let Err(e) = process_incoming_messages(&mut stream) {
                     error!("Connection error: {}", e);
                 }
