@@ -16,12 +16,6 @@ use std::time::Duration;
 struct Args {
     #[arg(short, long, env("MASTER_ADDR"), default_value = "192.168.1.100:9000")]
     master_addr: String,
-
-    #[arg(long, env("CLIENT_IP"), default_value = "127.0.0.1")]
-    client_ip: String,
-
-    #[arg(long, env("CLIENT_PORT"), default_value = "8000")]
-    client_port: u16,
 }
 
 fn run_slave(master_addr: &str) -> Result<()> {
