@@ -55,7 +55,7 @@ Run the slave binary with the required parameters:
 
 ```bash
 # Using command-line arguments:
-./target/release/slave --master-addr "192.168.1.100:9000" --client-ip "127.0.0.1" --client-port 8000
+./target/release/slave --master-addr "192.168.1.100:9000"
 
 # Or set environment variables:
 export MASTER_ADDR="192.168.1.100:9000"
