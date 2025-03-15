@@ -2,28 +2,6 @@
 
 NetSync is a remote control framework written in Rust that enables you to synchronize files across multiple testbench machines using a master–slave architecture. The master monitors a specified directory for changes and pushes update commands to connected slave clients, which then execute the appropriate actions.
 
-## Features
-
-- **Master–Slave Architecture:** One master sends commands to many slave clients.
-- **Real-Time File Monitoring:** Uses the [notify](https://crates.io/crate/notify) crate to watch a directory for file changes.
-- **TCP-Based Communication:** The master broadcasts commands via TCP sockets.
-- **Shared Command Protocol:** A shared module (`src/commands/`) defines a universal set of commands (e.g., Update, Ping, Custom) along with serialization/deserialization logic.
-- **Customizable Command Execution:** Commands include methods to execute on both server and client sides, and the client execution can utilize context (e.g., IP and port) for advanced operations.
-- **Error Handling & Logging:** Built with [anyhow](https://crates.io/crate/anyhow) for error handling, [clap](https://crates.io/crate/clap) for argument parsing, and [env_logger](https://crates.io/crate/env_logger) with [log](https://crates.io/crate/log) for logging.
-
-## Project Structure
-
-```
-netsync/
-├── Cargo.toml
-└── src
-    ├── master.rs      # Master binary code
-    ├── slave.rs       # Slave binary code
-    └── commands
-        ├── mod.rs     # Module root for shared commands
-        └── commands.rs# Shared command definitions and protocol
-```
-
 ## Installation
 
 ### Prerequisites
