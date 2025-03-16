@@ -1,18 +1,14 @@
 mod commands;
-mod heartbeat;
 mod logger;
 mod server;
-mod watcher;
 
 use anyhow::Result;
 use clap::Parser;
-use heartbeat::start_heartbeat;
 use log::info;
 use server::{ClientInfo, run_server};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use watcher::run_watcher;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -46,9 +42,9 @@ fn main() -> Result<()> {
 
     // Start heartbeat thread.
     thread::spawn(move || {
-        start_heartbeat(clients_for_heartbeat);
+        server::start_heartbeat(clients_for_heartbeat);
     });
 
     // Run file watcher in main thread.
-    run_watcher(clients, &args.repo_path)
+    server::run_watcher(clients, &args.repo_path)
 }
