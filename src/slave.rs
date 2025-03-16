@@ -1,7 +1,6 @@
 mod commands;
 mod logger;
 
-use crate::logger::init_logger;
 use anyhow::Result;
 use clap::Parser;
 use commands::{Command, deserialize_command, serialize_command};
@@ -126,7 +125,7 @@ fn run_slave(master_addr: &str, hostname: &str) -> Result<()> {
 }
 
 fn main() -> Result<()> {
-    init_logger("info");
+    let _guard = logger::init_logger();
     let args = Args::parse();
     info!("Using master address: {}", args.master_addr);
 

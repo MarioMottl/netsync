@@ -4,7 +4,6 @@ mod logger;
 mod server;
 mod watcher;
 
-use crate::logger::init_logger;
 use anyhow::Result;
 use clap::Parser;
 use heartbeat::start_heartbeat;
@@ -28,7 +27,7 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    init_logger("info");
+    let _guard = logger::init_logger();
     let args = Args::parse();
     info!("Using repo path: {}", args.repo_path);
     info!("Using port: {}", args.port);
