@@ -59,7 +59,5 @@ Run the slave binary with the required parameters:
 
 # Or set environment variables:
 export MASTER_ADDR="192.168.1.100:9000"
-export CLIENT_IP="127.0.0.1"
-export CLIENT_PORT=8000
 ./target/release/slave
 ```
