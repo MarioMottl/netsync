@@ -19,7 +19,7 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    let _guard = init_logger();
+    let _guard = init_logger(logger::LoggerMode::Console);
     let args = Args::parse();
     info!("Using master address: {}", args.master_addr);
 

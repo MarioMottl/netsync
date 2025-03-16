@@ -4,7 +4,7 @@ mod server;
 
 use anyhow::Result;
 use clap::Parser;
-use log::info;
+use log::{error, info};
 use server::{ClientInfo, run_server};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -21,7 +21,7 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    let _guard = logger::init_logger();
+    let _guard = logger::init_logger(logger::LoggerMode::File);
     let args = Args::parse();
     info!("Using repo path: {}", args.repo_path);
     info!("Using port: {}", args.port);
@@ -29,6 +29,7 @@ fn main() -> Result<()> {
     let clients: Arc<Mutex<HashMap<String, ClientInfo>>> = Arc::new(Mutex::new(HashMap::new()));
     let clients_for_server = Arc::clone(&clients);
     let clients_for_heartbeat = Arc::clone(&clients);
+    let clients_for_repl = Arc::clone(&clients);
 
     let port = args.port;
 
@@ -40,5 +41,16 @@ fn main() -> Result<()> {
         server::start_heartbeat(clients_for_heartbeat);
     });
 
-    server::run_watcher(clients, &args.repo_path)
+    thread::spawn({
+        let repo_path = args.repo_path.clone();
+        let c = Arc::clone(&clients);
+        move || {
+            if let Err(e) = server::run_watcher(c, &repo_path) {
+                error!("Watcher error: {}", e);
+            }
+        }
+    });
+
+    server::start_repl(clients_for_repl).expect("Could not start REPL");
+    Ok(())
 }
