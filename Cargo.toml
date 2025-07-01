@@ -18,9 +18,9 @@ slog-stdlog = "4.1.1"
 slog-term = "2.9.1"
 
 [[bin]]
-name = "master"
-path = "src/master.rs"
+name = "server"
+path = "src/server.rs"
 
 [[bin]]
-name = "slave"
-path = "src/slave.rs"
+name = "client"
+path = "src/client.rs"
