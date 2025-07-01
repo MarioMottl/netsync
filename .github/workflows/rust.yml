@@ -17,6 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build-Master
-      run: cargo build --bin master --release --verbose
+      run: cargo build --bin server --release --verbose
     - name: Build-Slave
-      run: cargo build --bin slave --release --verbose
+      run: cargo build --bin client --release --verbose
